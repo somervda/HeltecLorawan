@@ -1,8 +1,6 @@
 #include <TTN_esp32.h>
-
-#include "TTN_CayenneLPP.h"
-
 #define MYLED 25
+
 /***************************************************************************
  *  Go to your TTN console register a device then the copy fields
  *  and replace the CHANGE_ME strings below
@@ -11,8 +9,9 @@ const char *devEui = "0000000000000001";                 // Change to TTN Device
 const char *appEui = "70B3D57ED0030CD0";                 // Change to TTN Application EUI
 const char *appKey = "2FBD3BAEFF80F0A8B0E9589B985B905C"; // Chaneg to TTN Application Key
 
+static uint8_t mydata[] = "DAS0001";
+
 TTN_esp32 ttn;
-TTN_CayenneLPP lpp;
 
 void message(const uint8_t *payload, size_t size, int rssi)
 {
@@ -49,17 +48,16 @@ void setup()
 
 void loop()
 {
-  static float nb = 18.2;
-  nb += 0.1;
-  lpp.reset();
-  lpp.addTemperature(1, nb);
-  if (ttn.sendBytes(lpp.getBuffer(), lpp.getSize()))
+  static float nb = 1;
+  nb += 1;
+
+  if (ttn.sendBytes(mydata, sizeof(mydata) - 1))
   {
-    Serial.printf("Temp: %f TTN_CayenneLPP: %d %x %02X%02X\n", nb, lpp.getBuffer()[0], lpp.getBuffer()[1],
-                  lpp.getBuffer()[2], lpp.getBuffer()[3]);
+    Serial.print("mydata sent: ");
+    Serial.println(nb);
   }
   digitalWrite(MYLED, HIGH);
   delay(1000);
   digitalWrite(MYLED, LOW);
-  delay(600000);
+  delay(10000);
 }
