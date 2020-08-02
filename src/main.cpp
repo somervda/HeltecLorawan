@@ -9,7 +9,7 @@ const char *devEui = "0000000000000001";                 // Change to TTN Device
 const char *appEui = "70B3D57ED0030CD0";                 // Change to TTN Application EUI
 const char *appKey = "2FBD3BAEFF80F0A8B0E9589B985B905C"; // Chaneg to TTN Application Key
 
-static uint8_t mydata[] = "DAS0001";
+static uint8_t mydata[] = "DAS001";
 
 TTN_esp32 ttn;
 
@@ -59,5 +59,5 @@ void loop()
   digitalWrite(MYLED, HIGH);
   delay(1000);
   digitalWrite(MYLED, LOW);
-  delay(10000);
+  delay(300000);
 }
