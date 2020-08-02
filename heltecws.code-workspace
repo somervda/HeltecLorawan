@@ -1,9 +1,9 @@
 {
   "folders": [
-	{
-		"name": "HeltecLoraWanNTMC",
-		"path": "."
-	}
-],
+    {
+      "name": "HeltecLoraWanNTMC",
+      "path": "."
+    }
+  ],
   "settings": {}
 }

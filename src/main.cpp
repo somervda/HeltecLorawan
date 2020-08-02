@@ -59,5 +59,5 @@ void loop()
   digitalWrite(MYLED, HIGH);
   delay(1000);
   digitalWrite(MYLED, LOW);
-  delay(300000);
+  delay(60000);
 }
