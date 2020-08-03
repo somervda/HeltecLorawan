@@ -50,14 +50,24 @@ void loop()
 {
   static float nb = 1;
   nb += 1;
+  // Blink led before sending data
+  for (size_t i = 0; i < 5; i++)
+  {
+    digitalWrite(MYLED, HIGH);
+    delay(200);
+    digitalWrite(MYLED, LOW);
+    delay(200);
+  }
 
   if (ttn.sendBytes(mydata, sizeof(mydata) - 1))
   {
     Serial.print("mydata sent: ");
     Serial.println(nb);
   }
+  // long blink after sending data
   digitalWrite(MYLED, HIGH);
   delay(1000);
   digitalWrite(MYLED, LOW);
-  delay(60000);
+  // overall loop delay
+  delay(10000);
 }
