@@ -1,5 +1,5 @@
 // project-specific definitions
-// #define CFG_eu868 1
+//#define CFG_eu868 1
 #define CFG_us915 1
 //#define CFG_au921 1
 //#define CFG_as923 1

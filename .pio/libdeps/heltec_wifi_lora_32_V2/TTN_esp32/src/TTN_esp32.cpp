@@ -14,7 +14,6 @@
 #include "lmic/lmic/lmic.h"
 
 #define LOOP_TTN_MS 1
-// #define DEBUG 1
 
 /// The last sent sequence number we know, stored in RTC memory
 RTC_DATA_ATTR uint32_t sequenceNumberUp = 0;
@@ -63,8 +62,8 @@ TTN_esp32* TTN_esp32::getInstance()
 }
 
 // --- Constructor
-TTN_esp32::TTN_esp32()
-    : dev_eui {0, 0, 0, 0, 0, 0, 0, 0},
+TTN_esp32::TTN_esp32() :
+	  dev_eui {0, 0, 0, 0, 0, 0, 0, 0},
       app_eui {0, 0, 0, 0, 0, 0, 0, 0},
       app_key {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
       joined {false},
@@ -204,8 +203,7 @@ bool TTN_esp32::join(const char* appEui, const char* appKey, bool force, int8_t 
     return join();
 }
 
-bool TTN_esp32::join(
-    const char* devEui, const char* appEui, const char* appKey, bool force, int8_t retries, uint32_t retryDelay)
+bool TTN_esp32::join( const char* devEui, const char* appEui, const char* appKey, bool force, int8_t retries, uint32_t retryDelay)
 {
     restoreKeys();
     force = force
@@ -244,8 +242,8 @@ bool TTN_esp32::personalize(const char* devAddr, const char* nwkSKey, const char
     ByteArrayUtils::hexStrToBin(devAddr, dev_adr, 4);
     devaddr_t dev_addr = dev_adr[0] << 24 | dev_adr[1] << 16 | dev_adr[2] << 8 | dev_adr[3];
 #ifdef DEBUG
-    ESP_LOGI(TAG, "Dev adr str: %s", devAddr);
-    ESP_LOGI(TAG, "Dev adr int: %X", dev_addr);
+    ESP-LOGI(TAG,"Dev adr str: %s", devAddr);
+    ESP_LOGI(TAG,"Dev adr int: %X", dev_addr);
 #endif // DEBUG
     personalize(0x13, dev_addr, net_session_key, app_session_key);
     return true;
@@ -489,7 +487,7 @@ bool TTN_esp32::storeFrameCounter()
             success = NVSHandler::commit(handleCloser);
             if (success)
             {
-                // Serial.println(F("Successfully stored sequence number"));
+                //Serial.println(F("Successfully stored sequence number"));
                 ESP_LOGI(TAG, "Frame counter saved in NVS storage");
             }
         }
@@ -608,7 +606,7 @@ size_t TTN_esp32::getDevEui(char* buffer, size_t size, bool hardwareEUI)
         uint8_t mac[6];
         esp_err_t err = esp_efuse_mac_get_default(mac);
         ESP_ERROR_CHECK(err);
-        buf[7] = mac[0];
+        buf[7] = mac[0]; 
         buf[6] = mac[1];
         buf[5] = mac[2];
         buf[4] = 0xff;
@@ -934,7 +932,8 @@ void onEvent(ev_t event)
     case EV_JOINING:
         ttn->joined = false;
         break;
-    case EV_JOINED: {
+    case EV_JOINED:
+    {
         u4_t netid = 0;
         devaddr_t devaddr = 0;
         u1_t nwkKey[16];
@@ -1000,8 +999,8 @@ void onEvent(ev_t event)
             if (ttn->messageCallback)
             {
                 uint8_t downlink[LMIC.dataLen];
-                uint8_t offset = 9; // offset to get data.
-                std::copy(LMIC.frame + offset, LMIC.frame + offset + LMIC.dataLen, downlink);
+				uint8_t offset = 9;// offset to get data.
+                std::copy(LMIC.frame+offset, LMIC.frame+offset + LMIC.dataLen, downlink);
                 ttn->messageCallback(downlink, LMIC.dataLen, LMIC.rssi);
             }
         }

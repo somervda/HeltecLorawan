@@ -1,4 +1,5 @@
 #include <TTN_esp32.h>
+
 #define MYLED 25
 
 /***************************************************************************
@@ -9,9 +10,19 @@ const char *devEui = "0000000000000001";                 // Change to TTN Device
 const char *appEui = "70B3D57ED0030CD0";                 // Change to TTN Application EUI
 const char *appKey = "2FBD3BAEFF80F0A8B0E9589B985B905C"; // Chaneg to TTN Application Key
 
-static uint8_t mydata[] = "DAS001";
-
 TTN_esp32 ttn;
+
+struct sensor_data_struct
+{
+  uint32_t count;
+  uint32_t hall;
+  uint16_t data1;
+  uint8_t data2;
+  uint8_t data3;
+  uint32_t data4;
+};
+
+static sensor_data_struct my_sensor_data;
 
 void message(const uint8_t *payload, size_t size, int rssi)
 {
@@ -48,21 +59,27 @@ void setup()
 
 void loop()
 {
-  static float nb = 1;
-  nb += 1;
+
+  my_sensor_data.count += 1;
+  my_sensor_data.hall = hallRead();
+  my_sensor_data.data1 = 513;
+  my_sensor_data.data2 = 18;
+  my_sensor_data.data3 = 7;
+  my_sensor_data.data4 = 514;
+
   // Blink led before sending data
   for (size_t i = 0; i < 5; i++)
   {
     digitalWrite(MYLED, HIGH);
-    delay(200);
+    delay(100);
     digitalWrite(MYLED, LOW);
-    delay(200);
+    delay(100);
   }
 
-  if (ttn.sendBytes(mydata, sizeof(mydata) - 1))
+  if (ttn.sendBytes((uint8_t *)&my_sensor_data, sizeof(my_sensor_data)))
   {
     Serial.print("mydata sent: ");
-    Serial.println(nb);
+    Serial.println(my_sensor_data.count);
   }
   // long blink after sending data
   digitalWrite(MYLED, HIGH);
