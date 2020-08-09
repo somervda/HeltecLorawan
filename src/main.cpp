@@ -2,6 +2,7 @@
 #include "heltec.h"
 
 #define MYLED 25
+#define MYBTN 0
 
 #define BAND 915E6 //you can set band here directly,e.g. 868E6,915E6
 
@@ -26,6 +27,7 @@ struct sensor_data_struct
 };
 
 float join_count;
+int tx_delay = 10;
 
 static sensor_data_struct my_sensor_data;
 
@@ -48,6 +50,7 @@ void setup()
   Serial.println("Starting");
   join_count = 0;
   pinMode(MYLED, OUTPUT);
+  pinMode(MYBTN, INPUT);
 
   // https://github.com/HelTecAutomation/Heltec_ESP32/blob/master/src/oled/API.md
   Heltec.display->init();
@@ -55,9 +58,12 @@ void setup()
   Heltec.display->setTextAlignment(TEXT_ALIGN_LEFT);
   Heltec.display->setFont(ArialMT_Plain_10);
 
-  Heltec.display->drawString(0, 0, "HeltecLoRaWan Starting...");
+  Heltec.display->drawString(0, 0, "HeltecLoRaWan V0.53");
   Heltec.display->display();
-  delay(1000);
+  // 10 second delay before joining to ensure
+  // a spurious join not performed when updating firmware.
+  // TTN backend seems to get confused with too many joins
+  delay(10000);
 
   // See ttn functionality https://www.thethingsnetwork.org/docs/devices/arduino/usage.html
 
@@ -105,11 +111,13 @@ void loop()
     delay(100);
   }
   Heltec.display->clear();
-  Heltec.display->drawString(0, 0, "Sending : ");
-  Heltec.display->drawString(90, 0, String(my_sensor_data.count));
+  Heltec.display->drawString(0, 0, "Sending: ");
+  Heltec.display->drawString(50, 0, String(my_sensor_data.count));
+  Heltec.display->drawString(85, 0, "@");
+  Heltec.display->drawString(100, 0, String(tx_delay));
   Heltec.display->display();
 
-  // Note you can set the SF here - see API
+  // Note you can set the SF here - see API https://www.thethingsnetwork.org/docs/devices/arduino/api/network.html
   if (ttn.sendBytes((uint8_t *)&my_sensor_data, sizeof(my_sensor_data)))
   {
     Serial.print("mydata sent: ");
@@ -121,5 +129,39 @@ void loop()
   delay(1000);
   digitalWrite(MYLED, LOW);
   // overall loop delay
-  delay(10000);
+  for (size_t i = 0; i < tx_delay; i++)
+  {
+    // Check to see if prog button is pressed every second
+    // Change the
+    if (digitalRead(MYBTN) == 0)
+    {
+      if (tx_delay == 10)
+      {
+        tx_delay = 60;
+        i = tx_delay;
+      }
+      else if (tx_delay == 60)
+      {
+        tx_delay = 600;
+        i = tx_delay;
+      }
+      else if (tx_delay == 600)
+      {
+        tx_delay = 10;
+        i = tx_delay;
+      }
+      Heltec.display->clear();
+      Heltec.display->drawString(0, 0, "Delay Sec : ");
+      Heltec.display->drawString(90, 0, String(tx_delay));
+      Heltec.display->display();
+      for (size_t i = 0; i < 8; i++)
+      {
+        digitalWrite(MYLED, HIGH);
+        delay(50);
+        digitalWrite(MYLED, LOW);
+        delay(50);
+      }
+    }
+    delay(1000);
+  }
 }
